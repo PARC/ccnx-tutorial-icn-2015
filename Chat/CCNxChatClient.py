@@ -140,8 +140,7 @@ class CCNxChatClient(object):
         thread.start_new_thread(self.sync_in_background, ("BGSync", numSeconds))
 
     def send_seq_request(self):
-        #@REMOVE (the line with the randint() call
-        #interest = Interest(Name("%s/seq/%d" % (self.lciPrefix, random.randint(0, sys.maxint)))
+        # This will not work if cacheing is enabled on the forwarder (via the ContentStore)
         interest = Interest(Name("%s/seq" % (self.lciPrefix)))
         self.portal.send(interest)
 

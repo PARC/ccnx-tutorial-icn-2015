@@ -62,42 +62,27 @@ if __name__ == "__main__":
         sys.exit(2)
 
     if not count:
-        count = 1 
-        
-    
+        count = 1
+
+
     portal = open_portal()
 
     for i in range(int(count)):
         try:
             # 1. Construct and interest wiht the name "namePrefix" and payload <value>
-            #@REMOVE
-            interest = Interest(Name(namePrefix))
-            interest.setPayload(value)
+            # TODO: implement me!
 
             # 2. Send the interest using the Portal
-            #@REMOVE
-            portal.send(interest)
+            # TODO: implement me!
 
             # 3. Receive a response from the Portal
-            #@Remove
-            message = portal.receive()
+            # TODO: implement me!
 
             # 4. Determine what type of message was received, and act appropriately
-            #@REMOVE
-            if isinstance(message, Interest):
-                print "Received Interest: ", str(message)
-            elif isinstance(message, Control):
-                print "Received control message: ", str(message)
-            elif isinstance(message, ContentObject):
-                print "Received content message: ", str(message)
-            elif isinstance(message, InterestReturn):
-                print "Received InterestReturn message: ", str(message)
+            # TODO: implement me!
 
             # 5. Display the payload of the message, if one exists
-            #@REMOVE
-            payload = message.getPayload()
-            if payload:
-                print "Data: ", payload
+            # TODO: implement me!
 
         except Portal.CommunicationsError as x:
             sys.stderr.write("%s: comm error: %s\n" % (sys.argv[0], x.errno,))

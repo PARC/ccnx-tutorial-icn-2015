@@ -45,23 +45,13 @@ class GameClient(object):
         self.ccnxClient = CCNxClient()
         self.username = username
 
-    #@Remove
     def init(self):
-        self.connectUri = "lci:/tutorial/game/connect"
-        self.personalPrefix = "lci:/tutorial/" + self.username
-        self.actionPrefix = "lci:/tutorial/" + self.username + "/action"
-        self.statePrefix = "lci:/tutorial/game/players/state/" + self.username
+        # TODO: implement me!
+        pass
 
-    #@Remove
     def connect(self):
-        payload = {
-            "ip" : "localhost",
-            "port" : 9695,
-            "username" : self.username,
-            "teamplayer" : 0,
-            "number-of-ships" : 1
-        }
-        self.ccnxClient.get(self.connectUri, json.dumps(payload)) # consume the result
+        # TODO: implement me!
+        pass
 
     def run(self):
         listening = self.ccnxClient.listen(self.personalPrefix)
@@ -76,16 +66,8 @@ class GameClient(object):
                 self.take_action(name)
                 listening = self.display_state()
 
-    #@Remove
     def get_state(self, ship = 0):
-        payload = {
-            "username" : self.username,
-            "ship-number" : ship,
-        }
-        data = self.ccnxClient.get(self.statePrefix, json.dumps(payload))
-        while data == None:
-            data = self.ccnxClient.get(self.statePrefix, json.dumps(payload))
-        state = json.loads(data)
+        # TODO: implement me!
         return state
 
     def display_state(self, ship = 0):
@@ -105,13 +87,10 @@ class GameClient(object):
         # ship = int(input('ship: '))
         return (action, x, y, 0)
 
-    #@Remove
     def take_action(self, name):
         (action, x, y, ship) = self.get_input()
-        params = {"x": x, "y": y, "ship-number": ship}
-        response = { "username" : self.username, "action" : action, "params" : params }
-        payload = json.dumps(response)
-        self.ccnxClient.reply(name, payload)
+        # TODO: implement me!
+        pass
 
 def main(username):
     fail_fast()

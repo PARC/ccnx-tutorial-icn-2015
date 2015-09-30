@@ -56,22 +56,8 @@ class HTTPGateway(object):
 
         while listening:
             name, data = client.receive_raw()
-
-            #@REMOVE
-            schemaName = self.prefix + "/schema"
-            if schemaName in str(name):
-                client.reply(str(name), self.build_schema)
-            else:
-                url = "http://" + str(name[1].value)
-                path = "/".join(map(lambda ns : str(ns.value), name[2:]))
-                if len(path) > 0:
-                    url = url + "/" + path
-
-                print "Fetching %s" % (url)
-                content = urllib2.urlopen(url).read()
-
-                client.reply(str(name), content)
-
+            # TODO: implement me!
+            
 def main(argv):
     fail_fast()
     args = parse_args(argv)

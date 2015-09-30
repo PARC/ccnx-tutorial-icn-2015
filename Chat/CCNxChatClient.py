@@ -144,23 +144,14 @@ class CCNxChatClient(object):
         interest = Interest(Name("%s/seq" % (self.lciPrefix)))
         self.portal.send(interest)
 
-    #@Remove
     def request_missing_texts(self, seq):
-        lastSeen = self.get_last_seen_seq()
-        startSeq = lastSeen
-        seq += 1
-        if seq - lastSeen > self.MAX_MESSAGES_TO_BUFFER:
-           startSeq = seq - self.MAX_MESSAGES_TO_BUFFER
-
-        for missingSeq in xrange(startSeq, seq):
-            interest = Interest(Name("%s/text/%d" % (self.lciPrefix, missingSeq)))
-            self.portal.send(interest)
+        # TODO: implement me!
+        pass
 
     def send_text_message(self, text):
         interest = Interest(Name("%s/text" % (self.lciPrefix)))
         m = {'user': self.userName, 'text': text}
-        #@REMOVE (need to call AndId() to work with content store)
-        #interest.setPayloadAndId(json.dumps(m)) 
+        # TODO: implement me so that I work with the Content Store enabled
         interest.setPayload(json.dumps(m))
         self.portal.send(interest)
 

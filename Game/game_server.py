@@ -20,9 +20,10 @@ def createAddLinkMessage(host, port, nickName):
     return lci, payloadString
 
 def createAddRouteMessage(lci, linkNickName):
-    lci = "lci:/local/forwarder/FIB/add"
+    controlLci = "lci:/local/forwarder/FIB/add"
     payloadString = b"%s %s" % (str(lci), str(linkNickName))
-    return lci, payloadString
+    return controlLci, payloadString
+
 
 def state_to_string(state):
     size = state["radius"] * 2

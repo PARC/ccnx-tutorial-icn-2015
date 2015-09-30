@@ -13,7 +13,6 @@
 
 import sys, tempfile, time, json, random, errno, os, threading
 
-sys.path.append('/Users/cwood/Projects/PARC/Review/build/lib/python2.7/site-packages')
 from CCNx import *
 
 class CCNxClient(object):

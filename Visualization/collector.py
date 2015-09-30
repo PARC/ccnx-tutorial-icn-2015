@@ -3,7 +3,6 @@
 #shamelessly stolen from the sample code in the python directory
 
 import sys, tempfile, time, json, random, urllib2
-sys.path.append('/Users/cwood/Projects/PARC/Review/build/lib/python2.7/site-packages')
 
 from CCNx import *
 

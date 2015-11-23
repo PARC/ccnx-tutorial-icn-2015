@@ -102,6 +102,20 @@ class CCNxChatClient(object):
                         if seq > self.get_last_seen_seq():
                             self.request_missing_texts(seq)
 
+                    elif nameComponents[0] == 'who':
+                        timestamp = j['timestamp']
+                        members = j['members'] 
+                        s = "Users in room: "
+                        for member in members:
+                            s += member + ", "
+                        if s[-2:] == ", ":
+                            s = s[:-2]
+                        userName = "ChatServer"
+                        self.messages.add((seq, timestamp, userName, s))
+
+                        if self.callbackIncoming:
+                            self.callbackIncoming(seq, timestamp, userName, s)
+
                     elif nameComponents[0] == 'text':
                         # This could be an ACK for a submitted text, or it could be
                         # a text utterance. If it has a sequence number after /text,
@@ -142,6 +156,15 @@ class CCNxChatClient(object):
     def send_seq_request(self):
         # This will not work if cacheing is enabled on the forwarder (via the ContentStore)
         interest = Interest(Name("%s/seq" % (self.lciPrefix)))
+        m = {'user': self.userName}
+        interest.setPayload(json.dumps(m))
+        self.portal.send(interest)
+
+    def send_who_request(self):
+        # This will not work if cacheing is enabled on the forwarder (via the ContentStore)
+        interest = Interest(Name("%s/who" % (self.lciPrefix)))
+        m = {'user': self.userName}
+        interest.setPayload(json.dumps(m))
         self.portal.send(interest)
 
     #@Remove

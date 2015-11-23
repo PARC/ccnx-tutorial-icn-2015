@@ -17,9 +17,11 @@
     example payloads.
 """
 
-import sys, tempfile, getopt, time, json, random, sqlite3
+import sys, tempfile, getopt, time, json, random, sqlite3, operator
 
 from CCNx import *
+
+SECONDS_BEFORE_CONSIDERED_GONE = 60
 
 def nowInMillis():
     return int(round(time.time() * 1000))
@@ -99,7 +101,7 @@ class ChatUser(object):
 class ChatRoom(object):
     def __init__(self, name):
         self.name = name
-        self.members = []
+        self.members = {}
         self.messages = []
         self.dbfilename = ".ccnxChatRoom-%s.db" % (name)  # Where the chat contents persist
         self.db = sqlite3.connect(self.dbfilename)
@@ -166,12 +168,65 @@ class ChatRoom(object):
         return True, ContentObject(message.name, json.dumps(m))
 
 
+    def expire_disconnected_members(self, maxAgeInSeconds):
+        """ Remove users from self.members if they haven't been seen in maxAgeInSeconds """
+        timeSortedMembers = sorted(self.members.items(), key=operator.itemgetter(1))
+        expireTime = nowInMillis() - (maxAgeInSeconds * 1000)
+        for (user, t) in timeSortedMembers:
+            if t < expireTime:
+                del self.members[user]
+                print "Expiring: ", user
+
+
+    def create_member_list_hash(self):
+        """ Return a hash of the sorted list of users (sorted by name) """
+        activeMemberList = sorted(self.members)
+        print "Active: ", activeMemberList
+        return hash(tuple(activeMemberList))
+
+    ##
+    ## handlers for names start here:
+    ##
+
+    def poke_handler(self, message, nameComponents):
+        # TODO: poke someone - should be direct message?
+        pass
+        return True, None
+   
+    # Called for /command interests
+    def who_handler(self, message, nameComponents):
+        """ called for /who """
+        activeMemberList = sorted(self.members)
+        m = { "status": 0, 
+              "members": activeMemberList,
+              "timestamp": nowInMillis(),
+        }
+        return True, ContentObject(message.name, json.dumps(m))
+
+
     def seq_handler(self, message, nameComponents):
         """ /<room>/seq  - return the last sequence number / id that this room has seen """
+    
+        try:
+            j = json.loads(message.getPayload())
+            userName = j['user']
+
+            # Update the time last seen for this user
+            self.members[userName] = nowInMillis()
+
+        except:
+            # This is an older client that doesn't include a payload with the seq command
+            print "Old client connected. No 'user' in the /seq payload."
+            pass
+
+        self.expire_disconnected_members(SECONDS_BEFORE_CONSIDERED_GONE)
+        memberListHash = self.create_member_list_hash()
+
         m = {
               "status": 0,
               "timestamp": nowInMillis(),
-              "seq": self.lastRowId
+              "seq": self.lastRowId,
+              "memberhash" : memberListHash
             }
         return True, ContentObject(message.name, json.dumps(m))
 
@@ -240,8 +295,7 @@ class ChatHandler(BaseHandler):
         content = None
         name = str(message.name)[len(self.listenPrefix):]
         nameComponents = name.split('/')
-        #try:
-        if True:
+        try:
             roomName = nameComponents[1]
 
             if not roomName:
@@ -263,10 +317,9 @@ class ChatHandler(BaseHandler):
 
             return room.handle_message(message, nameComponents[1:])
 
-        #except Exception as e:
-        #    m = { "status": 1, "timestamp" : nowInMillis(), "error": str(e) }
-        #    return True, ContentObject(message.name, json.dumps(m))
-
+        except Exception as e:
+            m = { "status": 1, "timestamp" : nowInMillis(), "error": str(e) }
+            return True, ContentObject(message.name, json.dumps(m))
 
 def usage(argv):
     print "Usage: %s [-h ] [[-l | -lci] lci:/name/to/listen/on]" % argv[0]
@@ -314,7 +367,7 @@ def main(lciPrefix):
             keepRunning, response = chatHandler.handle_message(message)
 
             print "==>  ", response
-            if response.getPayload():
+            if response and response.getPayload():
                 print "   payload: ", response.getPayload()
             if response:
                 portal.send(response);

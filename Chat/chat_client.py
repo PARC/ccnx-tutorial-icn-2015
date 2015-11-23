@@ -97,6 +97,8 @@ class ChatForm(npyscreen.FormMuttActiveTraditional):
         # One could add some slash commands here... Like /quit.
         if text == "/sync":
             self.ccnxChatClient.send_seq_request()
+        elif text == "/who":
+            self.ccnxChatClient.send_who_request()
         else:
             self.wCommand.clear()
             self.wCommand.display()
